@@ -48,20 +48,20 @@ def get_recent_data(month: str, year: str) -> bool:
 
 	r = requests.get(url, allow_redirects=True, headers=payload)
 	if r.status_code == 200:
-		json_file = open('courses.json', 'wb').write(r.content)
+		json_file = open(f'{year}{month}_courses.json', 'wb').write(r.content)
 		req_etag = r.headers['etag']
 		etag_file.seek(0)
 		etag_file.write(req_etag)
 	etag_file.close()
-	if r.status_code != 200 and r.status_code != 304 and r.status_code != 412:
-		os.remove(f"{year}{month}_etag.txt")
-		return False
-	return True
+	if r.status_code == 200 or r.status_code == 304 or r.status_code == 412:
+		return True
+	os.remove(f"{year}{month}_etag.txt")
+	return False
 
-def construct_courses_dict() -> Dict:
+def construct_courses_dict(month: str, year: str) -> Dict:
 	courses_dict = {}
 	tags = {}
-	courses_json = json.load(open("courses.json"))
+	courses_json = json.load(open(f'{year}{month}_courses.json'))
 	for department in courses_json:
 		tags["department"] = department["code"]
 		courses_dict[tags["department"]] = {}
