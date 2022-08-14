@@ -58,7 +58,7 @@ def check_directory():
 	canon_name: str = "QuacsWatcher"
 	current_folder = os.path.basename(os.getcwd())
 	if current_folder != canon_name:
-		print(f'Current folder is "{current_folder}", please store script in a folder named "{canon_name}"')
+		exit(f'Current folder is "{current_folder}", please store script in a folder named "{canon_name}"')
 
 def print_license():
 	print("QuacsWatcher V1.0, Copyright (C) 2022 Lorenzo Rivera")
