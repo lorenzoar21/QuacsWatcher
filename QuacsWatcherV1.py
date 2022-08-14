@@ -41,7 +41,7 @@ def check_available(courses_dict: Dict, dept: str, crse: str):
 
 def get_recent_data(month: str, year: str) -> bool:
 	url = f"https://raw.githubusercontent.com/quacs/quacs-data/master/semester_data/{year}{month}/courses.json"
-	etag_file = open("etag.txt", mode="a+")
+	etag_file = open(f"{year}{month}_etag.txt", mode="a+")
 	etag_file.seek(0)
 	local_etag = etag_file.read()
 	payload = {"If-None-Match" : local_etag}
@@ -53,7 +53,10 @@ def get_recent_data(month: str, year: str) -> bool:
 		etag_file.seek(0)
 		etag_file.write(req_etag)
 	etag_file.close()
-	return r.status_code != 404
+	if r.status_code != 200 and r.status_code != 304 and r.status_code != 412:
+		os.remove(f"{year}{month}_etag.txt")
+		return False
+	return True
 
 def construct_courses_dict() -> Dict:
 	courses_dict = {}
@@ -99,7 +102,7 @@ def main():
 	desired_courses: Dict[str, List[str]] = {}
 	while True:
 
-		input_course = str(input('\nEnter course in the following format: "DEPT-XXXX":\n')).upper()
+		input_course = str(input('\nEnter course in the following format: "DEPT-XXXX"\n')).upper()
 		if input_course == "-1":
 			print("Finalizing desired courses...")
 			break
