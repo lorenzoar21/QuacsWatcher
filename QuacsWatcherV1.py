@@ -92,7 +92,11 @@ def main():
 		if input_course == "-1":
 			print("Finalizing desired courses...")
 			break
+		elif len(input_course) != 9  or input_course[4] != "-":
+			print("Invalid course specifier, try again")
+			continue
 		input_course = input_course.split('-')
+		
 
 		print(f"Your specified course: {input_course[0]}-{input_course[1]}")
 
