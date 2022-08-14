@@ -62,8 +62,8 @@ def check_directory():
 
 def print_license():
 	print("QuacsWatcher V1.0, Copyright (C) 2022 Lorenzo Rivera")
-	print("QuacsWatcher comes with ABSOLUTELY NO WARRANTY; for details" +
-	"go to: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html\n\n")
+	print("QuacsWatcher comes with ABSOLUTELY NO WARRANTY; for details," +
+	" go to: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html\n\n")
 
 def main():
 	print_license()
