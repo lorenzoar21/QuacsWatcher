@@ -61,7 +61,7 @@ def check_directory():
 		print(f'Current folder is "{current_folder}", please store script in a folder named "{canon_name}"')
 
 def print_license():
-	print("QuacsWatcher v.1, Copyright (C) 2022 Lorenzo Rivera")
+	print("QuacsWatcher V1.0, Copyright (C) 2022 Lorenzo Rivera")
 	print("QuacsWatcher comes with ABSOLUTELY NO WARRANTY; for details")
 	print("go to: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html\n\n")
 
