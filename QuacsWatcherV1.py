@@ -19,15 +19,15 @@ import json
 from typing import Dict, List
 import os
 
-def return_available(sections: List) -> List:
+def get_available_secs(sections: List) -> List:
 	available = []
 	for section in sections:
 		if(section["rem"] > 0):
 			available.append(section)
 	return available
 
-def check_available(courses_dict: Dict, dept: str, crse: str):
-	available: List = return_available(courses_dict[dept][crse])
+def print_available_secs(courses_dict: Dict, dept: str, crse: str):
+	available: List = get_available_secs(courses_dict[dept][crse])
 	if len(available) == 0:
 		print(f"\tNo sections available for {dept}-{crse}, L + ratio bozo")
 	else:
@@ -141,7 +141,7 @@ def print_available_courses(courses_dict: Dict, desired_courses: Dict):
 	for dept, courses in desired_courses.items():
 		print(f"\n{dept} Department courses:")
 		for course in courses:
-			check_available(courses_dict, dept, course)
+			print_available_secs(courses_dict, dept, course)
 
 def main():
 	print_license()
