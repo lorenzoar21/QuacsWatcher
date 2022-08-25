@@ -137,16 +137,18 @@ def get_term_course_data() -> Dict:
 
 	return construct_courses_dict(term_months[term[0]], term[1])
 
+def print_available_courses(courses_dict: Dict, desired_courses: Dict):
+	for dept, courses in desired_courses.items():
+		print(f"\n{dept} Department courses:")
+		for course in courses:
+			check_available(courses_dict, dept, course)
 
 def main():
 	print_license()
 	check_directory()
 	courses_dict: Dict = get_term_course_data()	
 	desired_courses: Dict[str, List[str]] = get_desired(courses_dict)
-	for dept, courses in desired_courses.items():
-		print(f"\n{dept} Department courses:")
-		for course in courses:
-			check_available(courses_dict, dept, course)
+	print_available_courses(courses_dict, desired_courses)
 
 if __name__ == "__main__":
     main()
