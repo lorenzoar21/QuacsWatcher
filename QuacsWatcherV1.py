@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-
 import requests
 import json
 from typing import Dict, List
@@ -48,7 +47,9 @@ def get_recent_data(month: str, year: str) -> bool:
 
 	r = requests.get(url, allow_redirects=True, headers=payload)
 	if r.status_code == 200:
-		json_file = open(f'{year}{month}_courses.json', 'wb').write(r.content)
+		json_file = open(f'{year}{month}_courses.json', 'wb')
+		json_file.write(r.content)
+		json_file.close()
 		req_etag = r.headers['etag']
 		etag_file.seek(0)
 		etag_file.write(req_etag)
@@ -61,13 +62,15 @@ def get_recent_data(month: str, year: str) -> bool:
 def construct_courses_dict(month: str, year: str) -> Dict:
 	courses_dict = {}
 	tags = {}
-	courses_json = json.load(open(f'{year}{month}_courses.json'))
+	json_file = open(f'{year}{month}_courses.json', 'rb')
+	courses_json = json.load(json_file)
 	for department in courses_json:
 		tags["department"] = department["code"]
 		courses_dict[tags["department"]] = {}
 		for course in department["courses"]:
 			tags["course"] = str(course["crse"])
 			courses_dict[tags["department"]][tags["course"]] = course["sections"]
+	json_file.close()
 	return courses_dict
 	
 def check_directory():
@@ -85,18 +88,20 @@ def main():
 	print_license()
 	check_directory()
 
+	term_months = {"spring" : "01", "summer" : "05", "fall" : "09", "winter": "12"}
 	while True:
-		term_months = {"spring" : "01", "summer" : "05", "fall" : "09", "winter": "12"}
 		term: List[str] = str(input('Enter desired school term in the following format: "[Spring/Summer/Fall/Winter] 20XX"\n')).lower().split(" ")
 		if len(term) != 2 or term[0] not in term_months.keys():
 			print("Invalid school term, please try again")
-		elif get_recent_data(term_months[term[0]], term[1]) is False:
+			continue
+		check = get_recent_data(term_months[term[0]], term[1])
+		if not check:
 			print(f"Semester data for {term[0]} {term[1]} is not available, please try again, or enter another semester.")
 		else:
 			print("Semester data found, constructing database...")
 			break
 
-	courses_dict: Dict = construct_courses_dict()
+	courses_dict: Dict = construct_courses_dict(term_months[term[0]], term[1])
 
 	print('Now taking input of courses. Type -1 to finish the course selection process.')
 	desired_courses: Dict[str, List[str]] = {}
@@ -110,7 +115,6 @@ def main():
 			print("Invalid course specifier, try again")
 			continue
 		input_course = input_course.split('-')
-		
 
 		print(f"Your specified course: {input_course[0]}-{input_course[1]}")
 
@@ -133,12 +137,10 @@ def main():
 			desired_courses[input_course[0]].append(input_course[1])
 			print("Added entry.")		
 
-
 	for dept, courses in desired_courses.items():
 		print(f"\n{dept} Department courses:")
 		for course in courses:
 			check_available(courses_dict, dept, course)
-
 
 if __name__ == "__main__":
     main()
