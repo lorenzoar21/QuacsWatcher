@@ -32,9 +32,9 @@ def check_available(courses_dict: Dict, dept: str, crse: str):
 		print(f"\tNo sections available for {dept}-{crse}, L + ratio bozo")
 	else:
 		for sect in available:
-			rem: int = courses_dict[dept][crse]['rem']
-			crn: int = courses_dict[dept][crse]['crn']
-			sec = courses_dict[dept][crse]['sec']
+			rem: int = sect['rem']
+			crn: int = sect['crn']
+			sec = sect['sec']
 			print(f"\tSection: {sec} | CRN: {crn} | {rem} spots remaining")
 
 
@@ -84,37 +84,19 @@ def print_license():
 	print("QuacsWatcher comes with ABSOLUTELY NO WARRANTY; for details," +
 	" go to: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html\n\n")
 
-def main():
-	print_license()
-	check_directory()
-
-	term_months = {"spring" : "01", "summer" : "05", "fall" : "09", "winter": "12"}
-	while True:
-		term: List[str] = str(input('Enter desired school term in the following format: "[Spring/Summer/Fall/Winter] 20XX"\n')).lower().split(" ")
-		if len(term) != 2 or term[0] not in term_months.keys():
-			print("Invalid school term, please try again")
-			continue
-		check = get_recent_data(term_months[term[0]], term[1])
-		if not check:
-			print(f"Semester data for {term[0]} {term[1]} is not available, please try again, or enter another semester.")
-		else:
-			print("Semester data found, constructing database...")
-			break
-
-	courses_dict: Dict = construct_courses_dict(term_months[term[0]], term[1])
-
+def get_desired(courses_dict: Dict) -> Dict[str, List[str]]:
 	print('Now taking input of courses. Type -1 to finish the course selection process.')
 	desired_courses: Dict[str, List[str]] = {}
 	while True:
 
-		input_course = str(input('\nEnter course in the following format: "DEPT-XXXX"\n')).upper()
+		input_course = str(input('\nEnter course in the following format: "DEPT-XXXX"\n')).upper().strip()
 		if input_course == "-1":
 			print("Finalizing desired courses...")
 			break
 		elif len(input_course) != 9  or input_course[4] != "-":
 			print("Invalid course specifier, try again")
 			continue
-		input_course = input_course.split('-')
+		input_course = input_course.strip().split('-')
 
 		print(f"Your specified course: {input_course[0]}-{input_course[1]}")
 
@@ -128,15 +110,39 @@ def main():
 		
 		confirm: str = ""
 		while confirm not in {"Y", "N"}:
-			confirm = str(input("Confirm course? Y/N: ")).upper()
+			confirm = str(input("Confirm course? Y/N: ")).upper().strip()
 		if confirm == "N":
 			print("Discarded entry.")
 		else:
 			if input_course[0] not in desired_courses.keys():
 				desired_courses[input_course[0]] = []
 			desired_courses[input_course[0]].append(input_course[1])
-			print("Added entry.")		
+			print("Added entry.")
+	
+	return desired_courses
 
+def get_term_course_data() -> Dict:
+	term_months = {"spring" : "01", "summer" : "05", "fall" : "09", "winter": "12"}
+	while True:
+		term: List[str] = str(input('Enter desired school term in the following format: "[Spring/Summer/Fall/Winter] 20XX"\n')).lower().strip().split(" ")
+		if len(term) != 2 or term[0] not in term_months.keys():
+			print("Invalid school term, please try again")
+			continue
+		check = get_recent_data(term_months[term[0]], term[1])
+		if not check:
+			print(f"Semester data for {term[0]} {term[1]} is not available, please try again, or enter another semester.")
+		else:
+			print("Semester data found, constructing database...")
+			break
+
+	return construct_courses_dict(term_months[term[0]], term[1])
+
+
+def main():
+	print_license()
+	check_directory()
+	courses_dict: Dict = get_term_course_data()	
+	desired_courses: Dict[str, List[str]] = get_desired(courses_dict)
 	for dept, courses in desired_courses.items():
 		print(f"\n{dept} Department courses:")
 		for course in courses:
